@@ -32,14 +32,15 @@ class kmeans():
                 new_centroids.append(self.new_centroids[k])
         return np.array(new_centroids)
 
-    def _calc_assignment(self, data_points):
-        return norm(data_points - self.new_centroids, ord=2, axis=1).argmin()
+    def _calc_assignment(self, new_data, kval):
+        return norm(new_data - self.new_centroids[kval], ord=2, axis=1)
 
     def _cluster_assignment(self):
-        new_assignments = []
-        for row in self.data:
-            new_assignments.append(self._calc_assignment(row))
-        return np.array(new_assignments)
+        distances = []
+        for k_v in range(0, self.k_value):
+            distances.append(self._calc_assignment(self.data, k_v))
+        new_assignments = np.array(distances).argmin(axis=0)
+        return new_assignments
 
     def _calc_inertia(self):
         inertia_p_k = []
@@ -59,7 +60,7 @@ class kmeans():
             if self.fitted:
                 new_inertia = self._calc_inertia()
                 print('%d - Inertia: %f - New Inertia: %f' % (init, self.inertia, new_inertia,))
-                if new_inertia < self.inertia:
+                if new_inertia < self.inertia*0.975:
                     self.centroids = self.new_centroids
                     self.assignments = self.new_assignments
                     self.inertia = new_inertia
@@ -68,14 +69,16 @@ class kmeans():
                 self.centroids = self.new_centroids
                 self.assignments = self.new_assignments
             self.fitted = True
+        self.new_centroids=self.centroids
 
     def predict(self, new_data):
         if self.fitted:
-            assignments = []
+            distance_new = []
             if new_data.shape[1] == self.centroids.shape[1]:
                 if new_data.shape[0] > 0:
-                    for row in new_data:
-                        assignments.append(self._calc_assignment(row))
+                    for k_v in range(0, self.k_value):
+                        distance_new.append(self._calc_assignment(new_data, k_v))
+                    assignments = np.array(distance_new).argmin(axis=0)
                     return assignments
         else:
             print("Must obtain centroids prior to fitting")
@@ -88,4 +91,3 @@ if __name__=='__main__':
     km = kmeans(k_value=3, seed=5, iter_value=15)
     km.fit(data_points)
     print(km.centroids)
-

@@ -46,7 +46,7 @@ def data_labels(data):
 
 @pytest.fixture(scope="session")
 def km_model(data_points):
-    km = kmeans(k_value=3, seed=1, iter_value=15, n_init=5)
+    km = kmeans(k_value=3, seed=1, iter_value=15, n_init=15)
     km.fit(data_points)
     return km
 
