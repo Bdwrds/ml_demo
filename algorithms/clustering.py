@@ -2,7 +2,7 @@
 Author: Ben E
 Date: 16/11/21
 """
-
+import numpy as np
 from numpy.random import uniform
 from numpy.linalg import norm
 
@@ -63,11 +63,13 @@ class kmeans():
 if __name__=='__main__':
     import numpy as np
     from algorithms.clustering import kmeans
-    data = np.loadtxt('./algorithms/iris.csv', delimiter=',')
+    data = np.loadtxt('./algorithms/data/iris.csv', delimiter=',', skiprows=1)
+    data_points = data[:, :4]
+    data_labels = data[:, 4]
     km = kmeans(k_value=3, seed=5, iter_value=15)
-    km.fit(data)
+    km.fit(data_points)
 
-    dt = data[:5,]
+    dt = data_points[:5,]
 
     km.predict(dt)
 
