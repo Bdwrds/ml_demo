@@ -93,7 +93,3 @@ if __name__=='__main__':
     dt = data_points[:5,]
 
     km.predict(dt)
-
-    inertia=[]
-    for k in k_value:
-        inertia.append(np.linalg.norm(km.centroids[0] - km.data[km.assignments==0], ord=2, axis=1).sum())
