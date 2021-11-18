@@ -7,7 +7,7 @@ from numpy.random import uniform
 from numpy.linalg import norm
 
 class kmeans():
-    def __init__(self, k_value: int, seed: int, iter_value, n_init=10):
+    def __init__(self, k_value: int, seed=1, iter_value=15, n_init=10):
         self.k_value = k_value
         self.seed = seed
         self.iter_value = iter_value
@@ -58,12 +58,11 @@ class kmeans():
 
             if self.fitted:
                 new_inertia = self._calc_inertia()
-                print('%d - Inertia: %f - New Inertia: %f' % (init, self.inertia, new_inertia,))
+                #print('%d - Inertia: %f - New Inertia: %f' % (init, self.inertia, new_inertia,))
                 if new_inertia < self.inertia:
                     self.centroids = self.new_centroids
                     self.assignments = self.new_assignments
                     self.inertia = new_inertia
-                    print('Updated')
             else:
                 self.inertia = self._calc_inertia()
                 self.centroids = self.new_centroids
@@ -82,11 +81,10 @@ class kmeans():
             print("Must obtain centroids prior to fitting")
 
 if __name__=='__main__':
-    import numpy as np
-    from algorithms.clustering import kmeans
-    data = np.loadtxt('./algorithms/data/iris.csv', delimiter=',', skiprows=1)
+    FP_PATH='./algorithms/data/iris.csv'
+    data = np.loadtxt(FP_PATH, delimiter=',', skiprows=1)
     data_points = data[:, :4]
     data_labels = data[:, 4]
     km = kmeans(k_value=3, seed=5, iter_value=15)
     km.fit(data_points)
-
+    print(km.centroids)
