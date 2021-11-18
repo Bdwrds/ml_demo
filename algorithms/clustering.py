@@ -44,8 +44,7 @@ class kmeans():
     def _calc_inertia(self):
         inertia_p_k = []
         for kv in range(0, self.k_value):
-            inertia_p_k.append(np.linalg.norm(self.new_centroids[kv] - self.data[self.new_assignments == kv]\
-                                              , ord=2, axis=1).sum())
+            inertia_p_k.append(np.sum((self.data[self.new_assignments == kv] - self.new_centroids[kv])**2))
         return np.sum(inertia_p_k)
 
     def fit(self, data):
@@ -59,7 +58,7 @@ class kmeans():
 
             if self.fitted:
                 new_inertia = self._calc_inertia()
-                #print('%d - Inertia: %f - New Inertia: %f' % (init, self.inertia, new_inertia,))
+                print('%d - Inertia: %f - New Inertia: %f' % (init, self.inertia, new_inertia,))
                 if new_inertia < self.inertia:
                     self.centroids = self.new_centroids
                     self.assignments = self.new_assignments
@@ -89,3 +88,4 @@ if __name__=='__main__':
     km = kmeans(k_value=3, seed=5, iter_value=15)
     km.fit(data_points)
     print(km.centroids)
+
