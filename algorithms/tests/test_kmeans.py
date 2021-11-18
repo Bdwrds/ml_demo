@@ -16,7 +16,7 @@ logging.basicConfig(
     format='%(asctime)-15s - %(name)s - %(level)s - %(message)s'
 )
 
-FP_IRIS='../data/iris.csv'
+FP_IRIS='./algorithms/data/iris.csv'
 
 @pytest.fixture(scope="session")
 def data():
@@ -48,15 +48,14 @@ def calc_centroids(X, y):
     cent=[]
     for kv in np.unique(y):
         cent.append(X[y == kv, :4].mean(axis=0))
-    cent_adj = np.array(cent).sum(axis=1)
-    cent_adj.sort()
-    return cent_adj
+    return np.array(cent)
 
 def test_fitting(data_points, data_labels):
-    km = kmeans(k_value=3, seed=5, iter_value=3)
+    km = kmeans(k_value=3, seed=1, iter_value=15, n_init=5)
     km.fit(data_points)
     centroids_est = km.centroids
-    centroids_est_adj = centroids_est.sum(axis=1)
-    centroids_est_adj.sort()
     centroids_real = calc_centroids(data_points, data_labels)
-    assert round(centroids_est_adj[0], 0) == round(centroids_real[0], 0)
+    centroid_gap = np.linalg.norm(centroids_est - centroids_real, ord=2, axis=1)
+    assert centroid_gap[0] < 0.5
+    assert centroid_gap[1] < 0.5
+    assert centroid_gap[2] < 0.5

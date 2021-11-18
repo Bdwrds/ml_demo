@@ -7,11 +7,12 @@ from numpy.random import uniform
 from numpy.linalg import norm
 
 class kmeans():
-    def __init__(self, k_value: int, seed: int, iter_value):
+    def __init__(self, k_value: int, seed: int, iter_value, n_init=10):
         self.k_value = k_value
         self.seed = seed
         self.iter_value = iter_value
         self.fitted = False
+        self.n_init = n_init
         np.random.seed(seed)
 
     def _initialise(self):
@@ -24,30 +25,50 @@ class kmeans():
     def _update_centroids(self):
         new_centroids = []
         for k in range(0, self.k_value):
-            if sum(self.assignments == k)>0:
-                new_centroids.append(self.data[self.assignments == k, :].mean(axis=0))
+            if sum(self.new_assignments == k) > 0:
+                new_centroids.append(self.data[self.new_assignments == k, :].mean(axis=0))
             else:
-                new_centroids.append(self.centroids[k])
+                new_centroids.append(self.new_centroids[k])
         return np.array(new_centroids)
 
     def _calc_assignment(self, data_points):
-        return norm(data_points - self.centroids, ord=2, axis=1).argmin()
+        return norm(data_points - self.new_centroids, ord=2, axis=1).argmin()
 
-    def _cluster_assignment(self, data):
+    def _cluster_assignment(self):
         new_assignments = []
-        for row in data:
+        for row in self.data:
             new_assignments.append(self._calc_assignment(row))
         return np.array(new_assignments)
+
+    def _calc_inertia(self):
+        inertia_p_k = []
+        for kv in range(0, self.k_value):
+            inertia_p_k.append(np.linalg.norm(self.new_centroids[kv] - self.data[self.new_assignments == kv]\
+                                              , ord=2, axis=1).sum())
+        return np.sum(inertia_p_k)
 
     def fit(self, data):
         self.dim = data.ndim
         self.data = data
-        self.centroids = self._initialise()
-        #self.assignments = np.zeros(self.data.shape[0])
-        for itr in range(0, self.iter_value):
-            self.assignments = self._cluster_assignment(data)
-            self.centroids = self._update_centroids()
-        self.fitted = True
+        for init in range(0, self.n_init):
+            self.new_centroids = self._initialise()
+            for itr in range(0, self.iter_value):
+                self.new_assignments = self._cluster_assignment()
+                self.new_centroids = self._update_centroids()
+
+            if self.fitted:
+                new_inertia = self._calc_inertia()
+                print('%d - Inertia: %f - New Inertia: %f' % (init, self.inertia, new_inertia,))
+                if new_inertia < self.inertia:
+                    self.centroids = self.new_centroids
+                    self.assignments = self.new_assignments
+                    self.inertia = new_inertia
+                    print('Updated')
+            else:
+                self.inertia = self._calc_inertia()
+                self.centroids = self.new_centroids
+                self.assignments = self.new_assignments
+            self.fitted = True
 
     def predict(self, new_data):
         if self.fitted:
@@ -73,3 +94,6 @@ if __name__=='__main__':
 
     km.predict(dt)
 
+    inertia=[]
+    for k in k_value:
+        inertia.append(np.linalg.norm(km.centroids[0] - km.data[km.assignments==0], ord=2, axis=1).sum())
