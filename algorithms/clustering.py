@@ -90,6 +90,3 @@ if __name__=='__main__':
     km = kmeans(k_value=3, seed=5, iter_value=15)
     km.fit(data_points)
 
-    dt = data_points[:5,]
-
-    km.predict(dt)

@@ -44,18 +44,27 @@ def data_labels(data):
     data_labels = data[:, 4]
     return data_labels
 
+@pytest.fixture(scope="session")
+def km_model(data_points):
+    km = kmeans(k_value=3, seed=1, iter_value=15, n_init=5)
+    km.fit(data_points)
+    return km
+
 def calc_centroids(X, y):
     cent=[]
     for kv in np.unique(y):
         cent.append(X[y == kv, :4].mean(axis=0))
     return np.array(cent)
 
-def test_fitting(data_points, data_labels):
-    km = kmeans(k_value=3, seed=1, iter_value=15, n_init=5)
-    km.fit(data_points)
-    centroids_est = km.centroids
+def test_fitting(km_model, data_points, data_labels):
+    centroids_est = km_model.centroids
     centroids_real = calc_centroids(data_points, data_labels)
     centroid_gap = np.linalg.norm(centroids_est - centroids_real, ord=2, axis=1)
     assert centroid_gap[0] < 0.5
     assert centroid_gap[1] < 0.5
     assert centroid_gap[2] < 0.5
+
+def test_predict(km_model, data_points):
+    dt = data_points[:5, ]
+    pred_top_5 = km_model.predict(dt)
+    assert (pred_top_5 == km_model.assignments[:5]).all()
