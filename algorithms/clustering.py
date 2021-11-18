@@ -1,4 +1,5 @@
 """
+Basic implementation of clustering algorithms using numpy
 Author: Ben E
 Date: 16/11/21
 """
