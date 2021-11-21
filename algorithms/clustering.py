@@ -17,6 +17,10 @@ class kmeans():
         np.random.seed(seed)
 
     def _initialise(self):
+        """
+        Initialise the centroids randomly between the min/max of that dimension.
+        :return: Centroid values for all dimensions and number of clusters/k
+        """
         centroids = []
         for k in range(0, self.k_value):
             centroids.append([uniform(self.data[:,dim].min(), self.data[:,dim].max()) \
@@ -24,6 +28,10 @@ class kmeans():
         return np.array(centroids)
 
     def _update_centroids(self):
+        """
+        Given the latest assignments - calculate the mean of the new clusters
+        :return: Centroids values of said clusters
+        """
         new_centroids = []
         for k in range(0, self.k_value):
             if sum(self.new_assignments == k) > 0:
@@ -33,9 +41,19 @@ class kmeans():
         return np.array(new_centroids)
 
     def _calc_assignment(self, new_data, kval):
+        """
+        Given a new data point, how far is it from the a specific centroid.
+        :param new_data: The new data
+        :param kval: The specific centroid
+        :return: The distance to that centroid.
+        """
         return norm(new_data - self.new_centroids[kval], ord=2, axis=1)
 
     def _cluster_assignment(self):
+        """
+        Calculate the distance to centroids and give new assignments
+        :return: New assignments for each data point
+        """
         distances = []
         for k_v in range(0, self.k_value):
             distances.append(self._calc_assignment(self.data, k_v))
@@ -43,12 +61,20 @@ class kmeans():
         return new_assignments
 
     def _calc_inertia(self):
+        """
+        Calculate the inertia/ total within sum of squared distances
+        :return: Calculated inertia value
+        """
         inertia_p_k = []
         for kv in range(0, self.k_value):
             inertia_p_k.append(np.sum((self.data[self.new_assignments == kv] - self.new_centroids[kv])**2))
         return np.sum(inertia_p_k)
 
     def fit(self, data):
+        """
+        Primary function to fit clusters to the data
+        :param data: Primary data being fitted
+        """
         self.dim = data.ndim
         self.data = data
         for init in range(0, self.n_init):
@@ -72,6 +98,11 @@ class kmeans():
         self.new_centroids=self.centroids
 
     def predict(self, new_data):
+        """
+        Predict the cluster assignment of the new data.
+        :param new_data: New data being classified.
+        :return: Assignments of the new data points.
+        """
         if self.fitted:
             distance_new = []
             if new_data.shape[1] == self.centroids.shape[1]:
